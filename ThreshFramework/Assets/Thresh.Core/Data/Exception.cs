@@ -21,6 +21,24 @@ namespace Thresh.Core.Data
     }
     
     [Serializable]
+    internal class EventException : Exception
+    {
+        public EventException()
+        {
+        }
+
+        public EventException(string message)
+            : base(message)
+        {
+        }
+
+        public EventException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+    }
+    
+    [Serializable]
     internal class DefinitionException : Exception
     {
         internal DefinitionException()

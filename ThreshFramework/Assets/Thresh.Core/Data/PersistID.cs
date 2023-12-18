@@ -172,7 +172,7 @@ namespace Thresh.Core.Data
             get { return Root == Self; }
         }
 
-        public bool IsEmpty(PersistID pid)
+        public static bool IsEmpty(PersistID pid)
         {
             return pid == Empty;
         }

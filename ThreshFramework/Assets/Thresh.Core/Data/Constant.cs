@@ -70,6 +70,32 @@
         public const int DATA_PROTO_CONTAINER_CAPACITY = DATA_PROTO_CONTAINER_NAME     + 1;
         public const int DATA_PROTO_CONTAINER_SLOTS    = DATA_PROTO_CONTAINER_CAPACITY + 1;
         public const int DATA_PROTO_CONTAINER_PIDS     = DATA_PROTO_CONTAINER_SLOTS    + 1;
+        
+        
+        public const string FLAG_PERSISTID     = "pid";
+        public const string FLAG_ENTRY         = "entry";
+        public const string FLAG_NAME          = "name";
+        public const string FLAG_ROOT          = "root";
+        public const string FLAG_TYPE          = "type";
+        public const string FLAG_VALUE         = "value";
+        public const string FLAG_ENTITIES      = "entities";
+        public const string FLAG_PROPERTIES    = "properties";
+        public const string FLAG_RECORDS       = "records";
+        public const string FLAG_CONTAINERS    = "containers";
+        public const string FLAG_INCLUDES      = "includes";
+        public const string FLAG_SLOT          = "slot";
+        public const string FLAG_CHILD         = "child";
+        public const string FLAG_PATH          = "path";
+        public const string FLAG_ISFRAMEWORK   = "isFramework";
+        public const string FLAG_SAVE          = "save";
+        public const string FLAG_ROW           = "row";
+        public const string FLAG_ROWS          = "rows";
+        public const string FLAG_COLS          = "cols";
+        public const string FLAG_INDEX         = "index";
+        public const string FLAG_CAPACITY      = "capacity";
+        public const string FLAG_REQUIRED_TYPE = "required_type";
+        public const string FLAG_DESC          = "desc";
+        public const string FLAG_NODE          = "node";
     }
 
     public enum VariantType : byte
@@ -125,5 +151,131 @@
         /// variant`s type is Int3
         /// </summary>
         Int3 = 10,
+    }
+    
+    public enum DataType : byte
+    {
+        Property = 1,
+
+        Record = 2,
+
+        Container = 3,
+
+        Entity = 4,
+    }
+    
+    /// <summary>
+    /// entity`s propery is calling here`s event
+    /// </summary>
+    public enum PropertyEvent : byte
+    {
+        /// <summary>
+        /// entity`s propery initial event
+        /// </summary>
+        Initial = 1,
+
+        /// <summary>
+        /// entity`s propery changed event
+        /// </summary>
+        Changed = 2,
+
+        /// <summary>
+        /// entity`s propery changed event
+        /// </summary>
+        Clear = 3,
+    };
+    
+    /// <summary>
+    /// entity`s record is calling here`s event
+    /// </summary>
+    public enum RecordEvent : byte
+    {
+        /// <summary>
+        /// entity`s record initial event
+        /// </summary>
+        Initial = 1,
+
+        /// <summary>
+        /// entity`s record addrow event
+        /// </summary>
+        AddRow = 2,
+
+        /// <summary>
+        /// entity`s record delrow event
+        /// </summary>
+        DelRow = 3,
+
+        /// <summary>
+        /// entity`s record setrow event
+        /// </summary>
+        SetRow = 4,
+
+        /// <summary>
+        /// entity`s record setcol event
+        /// </summary>
+        SetCol = 5,
+
+        /// <summary>
+        /// entity`s record clear event
+        /// </summary>
+        Clear = 6,
+    };
+    
+    /// <summary>
+    /// entity`s contianer is calling here`s event
+    /// </summary>
+    public enum ContainerEvent : byte
+    {
+        /// <summary>
+        /// entity`s contianer initial event
+        /// </summary>
+        Initial = 1,
+
+        /// <summary>
+        /// entity`s contianer add event
+        /// </summary>
+        AddChild = 2,
+
+        /// <summary>
+        /// entity`s contianer del event
+        /// </summary>
+        DelChild = 3,
+
+        /// <summary>
+        /// entity`s contianer clear event
+        /// </summary>
+        Clear = 4,
+    };
+    
+    
+    /// <summary>
+    /// entity is calling here`s event
+    /// </summary>
+    public enum EntityEvent : byte
+    {
+        /// <summary>
+        /// entity first create event
+        /// </summary>
+        OnCreate,
+
+        /// <summary>
+        /// entity everytime online load event
+        /// </summary>
+        OnLoad,
+
+        /// <summary>
+        /// entity everytime online load event
+        /// </summary>
+        OnEntry,
+
+        /// <summary>
+        /// entity be destroyed event
+        /// </summary>
+        OnDestroy,
+
+        /// <summary>
+        /// entity everytime offline leave event
+        /// </summary>
+        OnLeave,
     }
 }
