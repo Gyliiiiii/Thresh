@@ -54,4 +54,21 @@ namespace Thresh.Core.Data
         {
         }
     }
+    
+    [Serializable]
+    internal class ModuleException : Exception
+    {
+        public ModuleException()
+        {
+        }
+        public ModuleException(string message)
+            : base(message)
+        {
+        }
+
+        public ModuleException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+    }
 }

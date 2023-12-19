@@ -16,7 +16,7 @@ namespace Thresh.Core.Interface
     public interface IKernel
     {
         #region ----- ----- ----- ----- Core ----- ----- ----- -----
-        EntityDef getEntityDef(string type);
+        EntityDef GetEntityDef(string type);
         void CreateModule<T>() where T : IModule;
         #endregion
 

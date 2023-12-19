@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
+using Thresh.Core.Data;
 
 namespace Thresh.Core.Utility
 {
     public static class MathUtil
     {
-
         /// <summary>
         /// 根据GUID获取16位的唯一字符串
         /// </summary>
@@ -63,13 +63,14 @@ namespace Thresh.Core.Utility
         public static List<int> GetRandoms(int min, int max, int count)
         {
             List<int> result = new List<int>();
-            if (max - min +1 <= count)
+            if (max - min + 1 <= count)
             {
                 for (int i = min; i <= max; i++)
                 {
                     result.Add(i);
                 }
-            }else if (max - min + 1 > count)
+            }
+            else if (max - min + 1 > count)
             {
                 while (result.Count < count)
                 {
@@ -91,7 +92,7 @@ namespace Thresh.Core.Utility
                 return default(T);
             }
 
-            if (list.Count <=0)
+            if (list.Count <= 0)
             {
                 return default(T);
             }
@@ -100,7 +101,57 @@ namespace Thresh.Core.Utility
 
             return list[result];
         }
-        
-        //public static T CalculateWeightObject<T>(List<Group<T,int>> list)
+
+        public static T CalculateWeightObject<T>(List<Group<T, int>> list)
+        {
+            if (list == null)
+            {
+                return default(T);
+            }
+
+            if (list.Count <= 0)
+            {
+                return default(T);
+            }
+
+            int total = 0;
+            foreach (var pair in list)
+            {
+                total += pair.Item2;
+            }
+
+            List<Group<int, int>> intervalList = new List<Group<int, int>>(list.Count);
+
+            int count = 0;
+            foreach (var group in list)
+            {
+                if (count == 0)
+                {
+                    intervalList.Add(new Group<int, int>(0, group.Item2));
+                }
+                else if (count > 0)
+                {
+                    int temp_value = intervalList[count - 1].Item2;
+                    intervalList.Add(new Group<int, int>(temp_value + 1, temp_value + group.Item2));
+                }
+
+                count++;
+            }
+            
+            int result = rnd.Next(0, total+1);
+
+            count = 0;
+            foreach (var pair in intervalList)
+            {
+                if (result >= pair.Item1 && result<= pair.Item2)
+                {
+                    break;
+                }
+
+                count++;
+            }
+
+            return list[count].Item1;
+        }
     }
 }
