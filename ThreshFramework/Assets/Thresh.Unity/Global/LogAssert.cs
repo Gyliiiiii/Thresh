@@ -52,65 +52,106 @@ namespace Thresh.Unity.Global
 
     public class UnityLog : ILog
     {
+        private string _Name;
         public string Name { get; }
+
+        public UnityLog(string name)
+        {
+            _Name = name;
+        }
+        
         public void Debug(string message)
         {
-            throw new NotImplementedException();
+            if (LogAssert.Level >= LogLevel.Debug) return;
+
+            string fmt = string.Format("[{0}]|[Debug]|{1}", Name, message);
+            UnityEngine.Debug.Log(fmt);
         }
 
         public void Debug(string message, params object[] args)
         {
-            throw new NotImplementedException();
+            if (LogAssert.Level >= LogLevel.Debug) return;
+
+            string fmt = string.Format("[{0}]|[Debug]|{1}", Name, message);
+            UnityEngine.Debug.LogFormat(fmt,args);
         }
 
         public void Info(string message)
         {
-            throw new NotImplementedException();
+            if (LogAssert.Level >= LogLevel.Info) return;
+
+            string fmt = string.Format("[{0}]|[Info]|{1}", Name, message);
+            UnityEngine.Debug.Log(fmt);
         }
 
         public void Info(string message, params object[] args)
         {
-            throw new NotImplementedException();
+            if (LogAssert.Level >= LogLevel.Info) return;
+            
+            string fmt = string.Format("[{0}]|[Info]|{1}", Name, message);
+            UnityEngine.Debug.LogFormat(fmt,args);
         }
 
         public void Trace(string message)
         {
-            throw new NotImplementedException();
+            if (LogAssert.Level >= LogLevel.Trace) return;
+
+            string fmt = string.Format("[{0}]|[Trace]|{1}", Name, message);
+            UnityEngine.Debug.Log(fmt);
         }
 
         public void Trace(string message, params object[] args)
         {
-            throw new NotImplementedException();
+            if (LogAssert.Level >= LogLevel.Trace) return;
+            
+            string fmt = string.Format("[{0}]|[Trace]|{1}", Name, message);
+            UnityEngine.Debug.LogFormat(fmt,args);
         }
 
         public void Warn(string message)
         {
-            throw new NotImplementedException();
+            if (LogAssert.Level >= LogLevel.Warn) return;
+
+            string fmt = string.Format("[{0}]|[Warn]|{1}", Name, message);
+            UnityEngine.Debug.LogWarning(fmt);
         }
 
         public void Warn(string message, params object[] args)
         {
-            throw new NotImplementedException();
+            if (LogAssert.Level >= LogLevel.Warn) return;
+            
+            string fmt = string.Format("[{0}]|[Warn]|{1}", Name, message);
+            UnityEngine.Debug.LogWarningFormat(fmt,args);
         }
 
         public void Error(Exception ex)
         {
-            throw new NotImplementedException();
+            if (LogAssert.Level >= LogLevel.Error) return;
+
+            UnityEngine.Debug.LogException(ex);
         }
 
         public void Error(Exception ex, string message, params object[] args)
         {
-            throw new NotImplementedException();
+            if (LogAssert.Level >= LogLevel.Error) return;
+
+            string fmt =  string.Format("[{0}]|[Error]|{1}", Name, message);
+            UnityEngine.Debug.LogErrorFormat(fmt,ex);
         }
 
         public void Fatal(Exception ex)
         {
-            throw new NotImplementedException();
+            if (LogAssert.Level >= LogLevel.Fatal) return;
+            
+            UnityEngine.Debug.LogException(ex);
         }
 
         public void Fatal(Exception ex, string message, params object[] args)
         {
-            throw new NotImplementedException();
+            if (LogAssert.Level >= LogLevel.Fatal) return;
+
+            string fmt =  string.Format("[{0}]|[Fatal]|{1}", Name, message);
+            UnityEngine.Debug.LogErrorFormat(fmt,ex);
         }
     }
 }
