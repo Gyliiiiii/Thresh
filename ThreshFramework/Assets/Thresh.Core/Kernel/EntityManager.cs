@@ -79,7 +79,7 @@ namespace Thresh.Core.Kernel
 
         private Entity GenEntity(string name)
         {
-            EntityDef definition = _Kernel.getEntityDef(name);
+            EntityDef definition = _Kernel.GetEntityDef(name);
             if (definition == null)
             {
                 return null;
