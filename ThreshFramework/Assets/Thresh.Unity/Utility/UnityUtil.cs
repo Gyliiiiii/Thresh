@@ -29,7 +29,7 @@ namespace Thresh.Unity.Utility
             }
         }
 
-        public void Awake()
+        public virtual void Awake()
         {
             DontDestroyOnLoad(this.gameObject);
             if (_instance ==  null)

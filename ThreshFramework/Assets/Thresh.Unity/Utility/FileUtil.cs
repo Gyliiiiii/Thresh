@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using ICSharpCode.SharpZipLib.Zip;
 using Unity.VisualScripting;
 
 namespace Thresh.Unity.Utility
@@ -336,7 +337,7 @@ namespace Thresh.Unity.Utility
         /// <param name="overWrite">如果为true,覆盖同名文件，否则不覆盖</param>
         public static void MoveFiles(string sourceDir, string targetDir, bool overWrite)
         {
-            
+            MoveFiles(sourceDir,targetDir,overWrite,false);
         }
         
         /// <summary>
@@ -348,8 +349,77 @@ namespace Thresh.Unity.Utility
         /// <param name="moveSubDir">如果为true,包含目录,否则不包含</param>
         public static void MoveFiles(string sourceDir, string targetDir, bool overWrite, bool moveSubDir)
         {
-            
+            //移动当前目录文件
+            foreach (var sourceFileName in Directory.GetFiles(sourceDir))
+            {
+                string targetFileName = Path.Combine(targetDir,
+                    sourceFileName.Substring(sourceFileName.LastIndexOf(PATH_SPLIT_CHAR) + 1));
+                if (Exists(targetFileName))
+                {
+                    if (overWrite)
+                    {
+                        File.SetAttributes(targetFileName,FileAttributes.Normal);
+                        File.Delete(targetFileName);
+                        File.Move(sourceFileName,targetFileName);
+                    }
+                }
+                else
+                {
+                    File.Move(sourceFileName,targetFileName);
+                }
+            }
+
+            if (moveSubDir)
+            {
+                foreach (var sourceSubDir in Directory.GetDirectories(sourceDir))
+                {
+                    string targetSubDir = Path.Combine(targetDir,
+                        sourceSubDir.Substring(sourceSubDir.LastIndexOf(PATH_SPLIT_CHAR) + 1));
+                    if (!Directory.Exists(targetSubDir))
+                    {
+                        Directory.CreateDirectory(targetSubDir);
+                    }
+                    MoveFiles(sourceSubDir,targetSubDir,overWrite,true);
+                    Directory.Delete(sourceSubDir);
+                }
+            }
         }
+
+        
+        /// <summary>
+        /// 删除指定目录的所有文件,不包含子目录
+        /// </summary>
+        /// <param name="targetDir">操作目录</param>
+        public static void DeleteFiles(string targetDir)
+        {
+            DeleteFiles(targetDir,false);
+        }
+
+        /// <summary>
+        /// 删除指定目录的所有文件和子目录
+        /// </summary>
+        /// <param name="targetDir">操作目录</param>
+        /// <param name="delSubDir">如果为true,包含对子目录的操作</param>
+        public static void DeleteFiles(string targetDir, bool delSubDir)
+        {
+            foreach (var fileName in Directory.GetFiles(targetDir))
+            {
+                File.SetAttributes(fileName,FileAttributes.Normal);
+                File.Delete(fileName);
+            }
+
+            if (delSubDir)
+            {
+                DirectoryInfo dir = new DirectoryInfo(targetDir);
+                foreach (var subDir in dir.GetDirectories())
+                {
+                    DeleteFiles(subDir.FullName,true);
+                    subDir.Delete();
+                }
+            }
+        }
+        
+        
 
         /// <summary>
         /// 创建指定目录
@@ -373,7 +443,11 @@ namespace Thresh.Unity.Utility
         {
             CreateDirectory(parentDir + PATH_SPLIT_CHAR + subDirName);
         }
-
+        
+        /// <summary>
+        /// 删除指定目录
+        /// </summary>
+        /// <param name="targetDir"></param>
         public static void DeleteDirectory(string targetDir)
         {
             DirectoryInfo dir_info = new DirectoryInfo(targetDir);
@@ -383,5 +457,82 @@ namespace Thresh.Unity.Utility
                 dir_info.Delete(true);
             }
         }
+
+        public static void DeleteSubDirectory(string targetDir)
+        {
+            foreach (var subDir in Directory.GetDirectories(targetDir))
+            {
+                DeleteDirectory(subDir);
+            }
+        }
+
+        public static void UnZip(Stream stream, string strDirectory, string password, bool overWrite)
+        {
+            if (strDirectory == "")
+            {
+                strDirectory = Directory.GetCurrentDirectory();
+            }
+            if (!strDirectory.EndsWith("/"))
+            {
+                strDirectory = strDirectory + "/";
+            }
+
+            using (ZipInputStream s = new ZipInputStream(stream))
+            {
+                s.Password = password;
+                ZipEntry theEntry;
+
+                while ((theEntry = s.GetNextEntry()) != null)
+                {
+                    string directoryName = "";
+                    string pathToZip = "";
+                    pathToZip = theEntry.Name;
+
+                    if (pathToZip != "")
+                    {
+                        directoryName = Path.GetDirectoryName(pathToZip) + "/";
+                    }
+
+                    string fileName = Path.GetFileName(pathToZip);
+
+                    string new_dir = strDirectory + directoryName;
+                    Directory.CreateDirectory(new_dir);
+
+                    if (fileName != "")
+                    {
+                        if ((File.Exists(new_dir+fileName)&&overWrite) || (!File.Exists(new_dir+fileName)))
+                        {
+                            using (FileStream streamWriter = File.Create(new_dir + fileName))
+                            {
+                                int size = 2048;
+                                byte[] data = new byte[2048];
+                                while (true)
+                                {
+                                    size = s.Read(data, 0, data.Length);
+
+                                    if (size > 0)
+                                    {
+                                        streamWriter.Write(data, 0, size);
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                    streamWriter.Close();
+                                }
+                            }
+                        }
+                    }
+                }
+                s.Close();
+            }
+        }
+        
+        public static void UnZip(string zip_file, string strDirectory, string password, bool overWrite)
+        {
+            UnZip(File.OpenRead(zip_file),strDirectory,password,overWrite);    
+        }
     }
+    
+    
 }
