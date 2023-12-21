@@ -48,7 +48,7 @@ namespace Thresh.Unity.Utility
         public static string RemoveExtension(string path)
         {
             int f = path.LastIndexOf(".");
-            if (f!=-1)
+            if (f != -1)
             {
                 int l = path.Length - f;
                 path = path.Remove(f, l);
@@ -86,7 +86,7 @@ namespace Thresh.Unity.Utility
             if (File.Exists(dest))
             {
                 byte[] bytes = File.ReadAllBytes(src);
-                File.WriteAllBytes(dest,bytes);
+                File.WriteAllBytes(dest, bytes);
             }
             else
             {
@@ -95,7 +95,8 @@ namespace Thresh.Unity.Utility
                 {
                     CreateDirectory(destDir);
                 }
-                File.Copy(src,dest);
+
+                File.Copy(src, dest);
             }
         }
 
@@ -106,7 +107,8 @@ namespace Thresh.Unity.Utility
             {
                 CreateDirectory(destDir);
             }
-            File.Move(src,dest);
+
+            File.Move(src, dest);
         }
 
         public static byte[] GetFileBytes(string src)
@@ -142,7 +144,7 @@ namespace Thresh.Unity.Utility
             List<string> ret = new List<string>();
 
             GetFilesInDirectoryRecursively(path, withSubDirs, ref ret);
-            
+
             return ret;
         }
 
@@ -168,7 +170,7 @@ namespace Thresh.Unity.Utility
             {
                 foreach (var sub_dir in dirs)
                 {
-                    GetFilesInDirectoryRecursively(sub_dir.FullName,withSubDirs,ref ret);
+                    GetFilesInDirectoryRecursively(sub_dir.FullName, withSubDirs, ref ret);
                 }
             }
         }
@@ -201,7 +203,7 @@ namespace Thresh.Unity.Utility
                 foreach (var sub_dir in dirs)
                 {
                     string temp_path = Path.Combine(destPath, sub_dir.Name);
-                    DirectoryCopy(sub_dir.FullName,temp_path,withSubDirs);
+                    DirectoryCopy(sub_dir.FullName, temp_path, withSubDirs);
                 }
             }
         }
@@ -253,7 +255,7 @@ namespace Thresh.Unity.Utility
                 {
                     continue;
                 }
-                
+
                 paths.Add(path);
             }
 
@@ -263,12 +265,12 @@ namespace Thresh.Unity.Utility
         /// <summary>
         /// 复制指定目录的所有文件,不包含子目录及子目录中的文件
         /// </summary>
-        /// <param name="sourceDir"></param>
-        /// <param name="targetDir"></param>
-        /// <param name="overWrite"></param>
+        /// <param name="sourceDir">原始目录</param>
+        /// <param name="targetDir">目标目录</param>
+        /// <param name="overWrite">如果为true,表明覆盖同名文件,否则不覆盖</param>
         public static void CopyFiles(string sourceDir, string targetDir, bool overWrite)
         {
-            
+            CopyFiles(sourceDir,targetDir,overWrite,false);
         }
 
         /// <summary>
@@ -282,7 +284,7 @@ namespace Thresh.Unity.Utility
         {
             string temp_source_dir = sourceDir.Replace(FILTER_SPLIT_CHAR, PATH_SPLIT_CHAR);
             string temp_target_dir = targetDir.Replace(FILTER_SPLIT_CHAR, PATH_SPLIT_CHAR);
-            
+
             //复制当前目录文件
             foreach (var sourceFileName in Directory.GetFiles(temp_source_dir))
             {
@@ -299,23 +301,54 @@ namespace Thresh.Unity.Utility
                 {
                     if (overWrite)
                     {
-                        File.SetAttributes(targetFileName,FileAttributes.Normal);
-                        File.Copy(temp_src_file_name,targetFileName,overWrite);
+                        File.SetAttributes(targetFileName, FileAttributes.Normal);
+                        File.Copy(temp_src_file_name, targetFileName, overWrite);
                     }
                 }
                 else
                 {
-                    File.Copy(temp_src_file_name,targetFileName,overWrite);
+                    File.Copy(temp_src_file_name, targetFileName, overWrite);
                 }
             }
+
             //复制子目录
             if (copySubDir)
             {
-                foreach (var VARIABLE in Directory.GetDirectories(sourceDir))
+                foreach (var sourceSubDir in Directory.GetDirectories(sourceDir))
                 {
-                    
+                    string temp_sub_src_dir = sourceSubDir.Replace(FILTER_SPLIT_CHAR, PATH_SPLIT_CHAR);
+                    string targetSubDir = Path.Combine(temp_target_dir,
+                        temp_sub_src_dir.Substring(temp_sub_src_dir.LastIndexOf(PATH_SPLIT_CHAR)));
+                    if (!Directory.Exists(targetSubDir))
+                    {
+                        Directory.CreateDirectory(targetSubDir);
+                    }
+                    CopyFiles(temp_sub_src_dir,targetSubDir,overWrite,true);
                 }
             }
+        }
+
+        /// <summary>
+        /// 剪切指定目录的所有文件
+        /// </summary>
+        /// <param name="sourceDir">原始目录</param>
+        /// <param name="targetDir">目标目录</param>
+        /// <param name="overWrite">如果为true,覆盖同名文件，否则不覆盖</param>
+        public static void MoveFiles(string sourceDir, string targetDir, bool overWrite)
+        {
+            
+        }
+        
+        /// <summary>
+        /// 剪切指定目录的所有文件
+        /// </summary>
+        /// <param name="sourceDir">原始目录</param>
+        /// <param name="targetDir">目标目录</param>
+        /// <param name="overWrite">如果为true,覆盖同名文件，否则不覆盖</param>
+        /// <param name="moveSubDir">如果为true,包含目录,否则不包含</param>
+        public static void MoveFiles(string sourceDir, string targetDir, bool overWrite, bool moveSubDir)
+        {
+            
         }
 
         /// <summary>
@@ -330,7 +363,25 @@ namespace Thresh.Unity.Utility
                 dir.Create();
             }
         }
-        
-        
+
+        /// <summary>
+        /// 建立子目录
+        /// </summary>
+        /// <param name="parentDir">目录路径</param>
+        /// <param name="subDirName">子目录名称</param>
+        public static void CreateDirectory(string parentDir, string subDirName)
+        {
+            CreateDirectory(parentDir + PATH_SPLIT_CHAR + subDirName);
+        }
+
+        public static void DeleteDirectory(string targetDir)
+        {
+            DirectoryInfo dir_info = new DirectoryInfo(targetDir);
+            if (dir_info.Exists)
+            {
+                DeleteFiles(targetDir,true);
+                dir_info.Delete(true);
+            }
+        }
     }
 }
