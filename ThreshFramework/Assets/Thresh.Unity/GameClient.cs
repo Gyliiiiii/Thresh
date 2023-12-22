@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Thresh.Unity.Asset;
 using Thresh.Unity.Global;
+using Thresh.Unity.Localization;
 using Thresh.Unity.Utility;
 using UnityEngine;
 
@@ -39,14 +41,39 @@ namespace Thresh.Unity
             StartCoroutine(InitEngines());
         }
 
+        private Dictionary<string, IEngine> _EngineDic;
+
+        void RegisterEngine(string name, IEngine engine)
+        {
+            if (_EngineDic.ContainsKey(name))
+            {
+                LogAssert.Util.Warn("register [{0}_engine] failed",name);
+                return;
+            }
+            
+            _EngineDic.Add(name,engine);
+            LogAssert.Util.Debug("register [{0}_engine] success.",name);
+        }
+        
         private IEnumerator InitEngines()
         {
-            while (!AssetEngine)
+            while (!AssetEngine.Instance.LoadFinsh)
             {
-                throw new NotImplementedException();
+                yield return null;
+            }
+            RegisterEngine("asset",AssetEngine.Instance);
+
+            while (!L10NEngine.Instance.LoadFinsh)
+            {
+                yield return null;
+            }
+            RegisterEngine("l10n",AssetEngine.Instance);
+
+            while (!KernelEngine)
+            {
+                
             }
         }
 
-        private Dictionary<string, IEngine> _EngineDic;
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using Thresh.Core.Config.XML;
 using Thresh.Core.Data;
 using Thresh.Core.Variant;
 using Unity.VisualScripting;
@@ -10,6 +12,295 @@ namespace Thresh.Core.Config
     public class Definition
     {
         private Dictionary<string, EntityDef> _DefinitionDic = null;
+
+        public static Definition Load(string resource_path)
+        {
+            Definition define = new Definition();
+            define.LoadEntityDefs(resource_path);
+
+            return define;
+        }
+        
+         public Definition()
+        {
+            _DefinitionDic = new Dictionary<string, EntityDef>();
+        }
+
+        #region ------ ------ ------ ------Definition------ ------ ------ ------
+        public EntityDef GetEntity(string class_name)
+        {
+            EntityDef found = null;
+            _DefinitionDic.TryGetValue(class_name, out found);
+
+            return found;
+        }
+
+        private EntityDef[] _Entities;
+        public EntityDef[] GetEntities()
+        {
+            if (_Entities == null)
+            {
+                _Entities = new EntityDef[_DefinitionDic.Count];
+                _DefinitionDic.Values.CopyTo(_Entities, 0);
+            }
+            return _Entities;
+        }
+
+        private void AddDefinition(string class_name, EntityDef define)
+        {
+            try
+            {
+                if (_DefinitionDic.ContainsKey(class_name))
+                {
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendFormat("Get EntityDefinition Fail Name {0} is exist", class_name);
+                    throw new DefinitionException(sb.ToString());
+                }
+                else
+                {
+                    _DefinitionDic.Add(class_name, define as EntityDef);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new DefinitionException("DefinitionExpection because ", ex);
+            }
+        }
+
+        private void LoadEntityDefs(string resources_path)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(resources_path);
+            sb.Append("entity/entity_define.xml");
+
+            StreamReader sr = new StreamReader(sb.ToString(), Encoding.UTF8);
+            string content = sr.ReadToEnd();
+            sr.Close();
+
+            XMLParse.XMLDocument xml = new XMLParse.XMLDocument(content);
+
+            foreach (XMLParse.XMLNode xml_node in xml.RootNode.SubNodes)
+            {
+                LoadEntityDef(resources_path, xml_node, null);
+            }
+        }
+
+        private void LoadEntityDef(string resources_path, XMLParse.XMLNode xml_node, EntityDef parent)
+        {
+            string type = "";
+            string path = "";
+            bool isFramework = false;
+            foreach (var xml_attr in xml_node.Attributes)
+            {
+                switch (xml_attr.Name)
+                {
+                    case Constant.FLAG_TYPE:
+                        type = xml_attr.Value;
+                        break;
+                    case Constant.FLAG_PATH:
+                        path = xml_attr.Value;
+                        break;
+                    case Constant.FLAG_ISFRAMEWORK:
+                        isFramework = xml_attr.Value == "true";
+                        break;
+                }
+            }
+
+            if (string.IsNullOrEmpty(type) || string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+
+            EntityDef define = CreateEntityDef(type, resources_path, path);
+            define.Parent = parent;
+            define.isFramework = isFramework;
+            if (define.Parent != null)
+            {
+                define.Parent.AddChild(type);
+            }
+
+            AddDefinition(type, define);
+
+            foreach (XMLParse.XMLNode xml_sub_node in xml_node.SubNodes)
+            {
+                LoadEntityDef(resources_path, xml_sub_node, define);
+            }
+        }
+
+        private EntityDef CreateEntityDef(string type, string resources_path, string define_path)
+        {
+            EntityDef define = new EntityDef(type);
+
+            StringBuilder sb = new StringBuilder(resources_path);
+            sb.Append(define_path);
+
+            StreamReader sr = new StreamReader(sb.ToString(), Encoding.UTF8);
+            string content = sr.ReadToEnd();
+            sr.Close();
+
+            XMLParse.XMLDocument xml = new XMLParse.XMLDocument(content);
+
+            foreach (var xml_attr in xml.RootNode.Attributes)
+            {
+                if (xml_attr.Name.Equals(Constant.FLAG_NODE))
+                {
+                    define.Node = xml_attr.Value;
+                }
+            }
+
+            foreach (XMLParse.XMLNode xml_node in xml.RootNode.SubNodes)
+            {
+                if (xml_node.Name.Equals(Constant.FLAG_PROPERTIES))
+                {
+                    LoadPropertiesDef(ref define, xml_node);
+                }
+                else if (xml_node.Name.Equals(Constant.FLAG_RECORDS))
+                {
+                    LoadRecordsDef(ref define, xml_node);
+                }
+                else if (xml_node.Name.Equals(Constant.FLAG_CONTAINERS))
+                {
+                    LoadContainersDef(ref define, xml_node);
+                }
+                else if (xml_node.Name.Equals(Constant.FLAG_INCLUDES))
+                {
+                    LoadIncludesDef(ref define, resources_path, xml_node);
+                }
+            }
+
+            return define;
+        }
+
+        private void LoadIncludesDef(ref EntityDef define, string resources_path, XMLParse.XMLNode xml_includes)
+        {
+            foreach (XMLParse.XMLNode xml_include in xml_includes.SubNodes)
+            {
+                StringBuilder sb = new StringBuilder(resources_path);
+                sb.Append(xml_include.Value);
+
+                StreamReader sr = new StreamReader(sb.ToString(), Encoding.UTF8);
+                string content = sr.ReadToEnd();
+                sr.Close();
+
+                XMLParse.XMLDocument xml = new XMLParse.XMLDocument(content);
+
+                foreach (XMLParse.XMLNode xml_node in xml.RootNode.SubNodes)
+                {
+                    if (xml_node.Name.Equals(Constant.FLAG_PROPERTIES))
+                    {
+                        LoadPropertiesDef(ref define, xml_node);
+                    }
+                    else if (xml_node.Name.Equals(Constant.FLAG_RECORDS))
+                    {
+                        LoadRecordsDef(ref define, xml_node);
+                    }
+                    else if (xml_node.Name.Equals(Constant.FLAG_CONTAINERS))
+                    {
+                        LoadContainersDef(ref define, xml_node);
+                    }
+                }
+            }
+        }
+
+        private void LoadPropertiesDef(ref EntityDef define, XMLParse.XMLNode xml_properties)
+        {
+            foreach (XMLParse.XMLNode xml_node in xml_properties.SubNodes)
+            {
+                string property_name = "";
+
+                VariantMap property_def = new VariantMap();
+
+                property_name = xml_node.GetValue(Constant.FLAG_NAME);
+                property_def.Add(Constant.FLAG_TYPE, (byte)Enum.Parse(typeof(VariantType), xml_node.GetValue(Constant.FLAG_TYPE)));
+                property_def.Add(Constant.FLAG_SAVE, Convert.ToBoolean(xml_node.GetValue(Constant.FLAG_SAVE)));
+                property_def.Add(Constant.FLAG_DESC, xml_node.GetValue(Constant.FLAG_DESC));
+
+                if (string.IsNullOrEmpty(property_name))
+                {
+                    continue;
+                }
+
+                define.AddProperty(property_name, property_def);
+            }
+        }
+
+        private void LoadRecordsDef(ref EntityDef define, XMLParse.XMLNode xml_records)
+        {
+            foreach (XMLParse.XMLNode xml_node in xml_records.SubNodes)
+            {
+                string record_name = "";
+
+                VariantMap record_def = new VariantMap();
+
+                record_name = xml_node.GetValue(Constant.FLAG_NAME);
+                record_def.Add(Constant.FLAG_ROWS, Convert.ToInt32(xml_node.GetValue(Constant.FLAG_ROWS)));
+                record_def.Add(Constant.FLAG_COLS, Convert.ToInt32(xml_node.GetValue(Constant.FLAG_COLS)));
+                record_def.Add(Constant.FLAG_SAVE, Convert.ToBoolean(xml_node.GetValue(Constant.FLAG_SAVE)));
+                record_def.Add(Constant.FLAG_DESC, xml_node.GetValue(Constant.FLAG_DESC));
+
+                VariantList col_types = VariantList.New();
+                VariantList col_names = VariantList.New();
+                VariantList col_descs = VariantList.New();
+                SortedDictionary<int, VariantMap> temp = new SortedDictionary<int, VariantMap>();
+                foreach (var column_node in xml_node.SubNodes)
+                {
+                    VariantMap column = new VariantMap();
+                    int index = Convert.ToInt32(column_node.GetValue(Constant.FLAG_INDEX));
+                    byte type = (byte)Enum.Parse(typeof(VariantType), column_node.GetValue(Constant.FLAG_TYPE));
+                    string name = column_node.GetValue(Constant.FLAG_NAME);
+                    string desc = column_node.GetValue(Constant.FLAG_DESC);
+                    column.Add(Constant.FLAG_TYPE, type);
+                    column.Add(Constant.FLAG_NAME, name);
+                    column.Add(Constant.FLAG_DESC, desc);
+                    temp.Add(index, column);
+                }
+
+                if (string.IsNullOrEmpty(record_name))
+                {
+                    return;
+                }
+
+                if (record_def.GetInt(Constant.FLAG_COLS) != temp.Count)
+                {
+                    return;
+                }
+
+                foreach (VariantMap column in temp.Values)
+                {
+                    col_types.Append(column.GetByte(Constant.FLAG_TYPE));
+                    col_names.Append(column.GetString(Constant.FLAG_NAME));
+                    col_descs.Append(column.GetString(Constant.FLAG_DESC));
+                }
+
+                define.AddRecord(record_name, record_def, col_types, col_names, col_descs);
+            }
+        }
+
+        private void LoadContainersDef(ref EntityDef define, XMLParse.XMLNode xml_containers)
+        {
+            foreach (XMLParse.XMLNode xml_node in xml_containers.SubNodes)
+            {
+                string container_name = "";
+
+                VariantMap container_def = new VariantMap();
+
+                container_name = xml_node.GetValue(Constant.FLAG_NAME);
+                string capacity = xml_node.GetValue(Constant.FLAG_CAPACITY) != "" ? xml_node.GetValue(Constant.FLAG_CAPACITY) : "0";
+                container_def.Add(Constant.FLAG_CAPACITY, Convert.ToInt32(capacity));
+
+                container_def.Add(Constant.FLAG_SAVE, Convert.ToBoolean(xml_node.GetValue(Constant.FLAG_SAVE)));
+                container_def.Add(Constant.FLAG_REQUIRED_TYPE, xml_node.GetValue(Constant.FLAG_REQUIRED_TYPE));
+                container_def.Add(Constant.FLAG_DESC, xml_node.GetValue(Constant.FLAG_DESC));
+
+                if (string.IsNullOrEmpty(container_name))
+                {
+                    return;
+                }
+
+                define.AddContainer(container_name, container_def);
+            }
+        }
+        #endregion
     }
 
     public class PropertyDef

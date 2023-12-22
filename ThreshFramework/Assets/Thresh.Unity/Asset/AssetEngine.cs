@@ -112,7 +112,62 @@ namespace Thresh.Unity.Asset
                 load_finish(child);
             });
         }
-        
-        
+
+        public void CreateObject(string asset_path, Transform parent, Action<GameObject> load_finish)
+        {
+            Loader.LoadAsset<Object>(asset_path, (asset) =>
+            {
+                if (asset == null)
+                {
+                    Debug.LogErrorFormat("asset_path {0} connot be found",asset_path);
+                }
+
+                GameObject prefab = GameObject.Instantiate(asset) as GameObject;
+                prefab.transform.SetParent(parent);
+                prefab.transform.localPosition = Vector3.zero;
+                prefab.transform.localRotation = Quaternion.identity;
+
+                load_finish(prefab);
+            });
+        }
+
+        public void CreateObject<T>(string asset_path, Transform parent, Action<GameObject, T> load_finish, T tag)
+        {
+            Loader.LoadAsset<Object>(asset_path, (asset) =>
+            {
+                GameObject prefab = GameObject.Instantiate(asset) as GameObject;
+                prefab.transform.SetParent(parent);
+                prefab.transform.localPosition = Vector3.zero;
+                prefab.transform.localRotation = Quaternion.identity;
+
+                load_finish(prefab, tag);
+            });
+        }
+
+        public void CreateObject(string asset_path, Vector3 position, Quaternion rotation,
+            Action<GameObject> load_finish)
+        {
+            Loader.LoadAsset<Object>(asset_path, (asset) =>
+            {
+                GameObject prefab = GameObject.Instantiate(asset) as GameObject;
+                FastPool pool = FastPoolManager.CreatePool(prefab);
+                GameObject child = pool.FastInstantiate(position, rotation);
+
+                load_finish(child);
+            });
+        }
+
+        public void CreateObject(string asset_path, Transform parent, Vector3 position, Quaternion rotation,
+            Action<GameObject> load_finish)
+        {
+            Loader.LoadAsset<Object>(asset_path, (asset) =>
+            {
+                GameObject prefab = GameObject.Instantiate(asset) as GameObject;
+                FastPool pool = FastPoolManager.CreatePool(prefab);
+                GameObject child = pool.FastInstantiate(position, rotation, parent);
+
+                load_finish(child);
+            });
+        }
     }
 }
