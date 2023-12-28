@@ -71,6 +71,14 @@
         public const int DATA_PROTO_CONTAINER_SLOTS    = DATA_PROTO_CONTAINER_CAPACITY + 1;
         public const int DATA_PROTO_CONTAINER_PIDS     = DATA_PROTO_CONTAINER_SLOTS    + 1;
         
+        public const int MILLISECOND  = 1;
+        public const int SECOND       = 1000 * MILLISECOND;
+        public const int MINITE       = 60 * SECOND;
+        public const int HOUR         = 60 * MINITE;
+        public const int DAY          = 24 * HOUR;
+        public const int DAY_HOURS    = 24;
+        public const int WEEK_DAYS    = 7;
+        
         
         public const string FLAG_PERSISTID     = "pid";
         public const string FLAG_ENTRY         = "entry";

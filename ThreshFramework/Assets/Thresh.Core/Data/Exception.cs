@@ -71,4 +71,21 @@ namespace Thresh.Core.Data
         {
         }
     }
+    
+    [Serializable]
+    public class INIException : Exception
+    {
+        public INIException()
+        {
+        }
+        public INIException(string message)
+            : base(message)
+        {
+        }
+
+        public INIException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+    }
 }
