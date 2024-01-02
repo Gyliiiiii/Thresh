@@ -36,11 +36,11 @@ namespace Thresh.Unity.App
         {
             get
             {
-                return GetToken(Uuid);
+                return GetUuid();
             }
             set
             {
-                SetToken(Uuid,value);
+                SetUuid(value);
             }
         }
         

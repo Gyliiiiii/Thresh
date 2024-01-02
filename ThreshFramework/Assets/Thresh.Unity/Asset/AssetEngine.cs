@@ -61,14 +61,14 @@ namespace Thresh.Unity.Asset
         protected override IEnumerator Startup()
         {
             ZipConstants.DefaultCodePage = Encoding.UTF8.CodePage;
-            InstallPak(PAK_CONFIG);
-            InstallPak(PAK_LUA);
-            InstallPak(PAK_BUNDLE);
+            //InstallPak(PAK_CONFIG);
+            //InstallPak(PAK_LUA);
+            //InstallPak(PAK_BUNDLE);
 
-            while (_CurLoadedPaks != _MaxLoadedPaks)
-            {
-                yield return null;
-            }
+            // while (_CurLoadedPaks != _MaxLoadedPaks)
+            // {
+            //     yield return null;
+            // }
 
             GameObject loader = new GameObject("Loader");
             loader.transform.parent = transform;

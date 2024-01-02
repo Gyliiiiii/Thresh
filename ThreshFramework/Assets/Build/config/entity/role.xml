@@ -1,0 +1,17 @@
+﻿<?xml version="1.0"?>
+<entity>
+  <properties>
+    <property name="entry" type="Int" save="true" desc="模板"/>
+    <property name="last_login_time" type="Long" save="true" desc="上次登录时间"/>
+    
+    <property name="level" type="Int" save="true" desc="等级"/>
+    <property name="cur_exp" type="Int" save="true" desc="当前经验"/>
+  </properties>
+  <records>
+  </records>
+  <containers>
+  </containers>
+  
+  <includes>
+  </includes>
+</entity>

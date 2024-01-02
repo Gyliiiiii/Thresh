@@ -36,7 +36,7 @@ namespace Thresh.Core.Interface
         string GetType(PersistID pid);
 
         PersistID CreateEntity(string define, PersistID root, VariantList args = null);
-        PersistID CreateEntity(PersistID pid, string define, VariantList args = null);
+        //PersistID CreateEntity(PersistID pid, string define, VariantList args = null);
         void DestroyEntity(PersistID pid);
         VariantList ToProto(PersistID pid);
         #endregion

@@ -16,9 +16,9 @@ namespace Thresh.Core.Interface
         float     GetFloat();
         string    GetString();
         PersistID GetPid();
-        // Bytes     GetBytes();
-        // Int2      GetInt2();
-        // Int3      GetInt3();
+        Bytes     GetBytes();
+        Int2      GetInt2();
+        Int3      GetInt3();
 
         bool TrySetBool(bool value, out VariantList result);
         bool TrySetByte(byte value, out VariantList result);

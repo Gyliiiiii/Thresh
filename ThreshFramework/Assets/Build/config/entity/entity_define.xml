@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<entities>
+  <entity isFramework="true" type="role" path="entity/role.xml"/>
+</entities>

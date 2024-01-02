@@ -99,11 +99,11 @@ namespace Thresh.Unity
             }
             RegisterEngine("stage",StageEngine.Instance);
 
-            while (!NativeEngine.Instance.LoadFinsh)
-            {
-                yield return null;
-            }
-            RegisterEngine("native",NativeEngine.Instance);
+            // while (!NativeEngine.Instance.LoadFinsh)
+            // {
+            //     yield return null;
+            // }
+            // RegisterEngine("native",NativeEngine.Instance);
 
             while (!AppEngine.Instance.LoadFinsh)
             {

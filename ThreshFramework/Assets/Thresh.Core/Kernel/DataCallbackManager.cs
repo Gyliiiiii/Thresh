@@ -58,7 +58,7 @@ namespace Thresh.Core.Kernel
             _PropertyCallback.Register(entity_type,property_name,property_event,event_handler);
         }
 
-        public void CallPropertyHanler(PersistID pid, string property_name, PropertyEvent property_event,
+        public void CallPropertyHandler(PersistID pid, string property_name, PropertyEvent property_event,
             VariantList args)
         {
             string entity_type = _IKernel.GetType(pid);
